@@ -1,0 +1,11 @@
+import {cleanEnv, port, str} from "envalid";
+import dotenv from "dotenv";
+
+//_________ENV_VARIABLES_________//
+dotenv.config();
+
+//Validation on .env variables before running sever
+export default cleanEnv(process.env, {
+  PORT: port(),
+  NODE_ENV: str(),
+});

@@ -1,11 +1,15 @@
-import express from "express";
-import dotenv from "dotenv";
-dotenv.config();
+import {
+  uncaughtException,
+  unhandledRejection,
+} from "./middlewares/error/errors";
+//______UNCAUGHT_EXCEPTIONS______//
+process.on("uncaughtException", uncaughtException);
+import app from "./app";
+import env from "./config/env";
 
-const app = express();
-
-app.listen(process.env.PORT, () => {
-  console.log(
-    `App Running on PORT:${process.env.PORT} in ${process.env.NODE_ENV} mode`
-  );
+export const server = app.listen(env.PORT, () => {
+  console.log(`App Running on PORT:${env.PORT} in ${env.NODE_ENV} mode`);
 });
+
+//______UNHANDLED_REJECTIONS______//
+process.on("unhandledRejection", unhandledRejection);
