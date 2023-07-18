@@ -1,6 +1,6 @@
 import {Sequelize} from "sequelize-typescript";
-import {Tag} from "../models/tag.model";
 import env from "./env";
+import {User} from "../modules/user/user.model";
 
 const sequelize = new Sequelize({
   dialect: "postgres",
@@ -9,7 +9,7 @@ const sequelize = new Sequelize({
   username: env.DB_USERNAME,
   password: env.DB_PASSWORD,
   database: env.DB_NAME,
-  models: [Tag],
+  models: [User],
 });
 
 export const connectToDB = async () => {

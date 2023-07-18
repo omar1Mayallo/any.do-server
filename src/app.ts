@@ -6,7 +6,7 @@ import compression from "compression";
 import env from "./config/env";
 import {routeNotFoundError} from "./middlewares/error/errors";
 import globalErrorMiddleware from "./middlewares/error";
-import tagRouter from "./routes/tag.router";
+import authRouter from "./modules/auth/auth.router";
 
 const app = express();
 
@@ -22,7 +22,8 @@ if (env.NODE_ENV === "development") app.use(morgan("dev"));
 
 //_________ ROUTES _________//
 // APP_ROUTES
-app.use("/tags", tagRouter);
+app.use("/api/auth", authRouter);
+
 // 404_ROUTES
 app.all("*", routeNotFoundError);
 

@@ -13,4 +13,6 @@ export default cleanEnv(process.env, {
   DB_PORT: port(),
   DB_HOST: str(),
   DB_USERNAME: str(),
+  JWT_SECRET: str(),
+  JWT_EXPIRE_IN: str(),
 });
