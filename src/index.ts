@@ -6,6 +6,9 @@ import {
 process.on("uncaughtException", uncaughtException);
 import app from "./app";
 import env from "./config/env";
+import {connectToDB} from "./config/database";
+
+connectToDB();
 
 export const server = app.listen(env.PORT, () => {
   console.log(`App Running on PORT:${env.PORT} in ${env.NODE_ENV} mode`);

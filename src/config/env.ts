@@ -8,4 +8,9 @@ dotenv.config();
 export default cleanEnv(process.env, {
   PORT: port(),
   NODE_ENV: str(),
+  DB_NAME: str(),
+  DB_PASSWORD: str(),
+  DB_PORT: port(),
+  DB_HOST: str(),
+  DB_USERNAME: str(),
 });
