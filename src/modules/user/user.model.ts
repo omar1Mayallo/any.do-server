@@ -1,11 +1,12 @@
-import {Column, DataType, Model, Table, BeforeSave} from "sequelize-typescript";
 import bcrypt from "bcrypt";
+import {BeforeSave, Column, DataType, Model, Table} from "sequelize-typescript";
+import {UserRoles} from "../../constants";
 
 @Table({
   timestamps: true,
   tableName: "Users",
 })
-export class User extends Model {
+export default class User extends Model {
   @Column({
     type: DataType.STRING,
     allowNull: false,
@@ -32,6 +33,13 @@ export class User extends Model {
   })
   password!: string;
 
+  @Column({
+    type: DataType.ENUM(...Object.values(UserRoles)),
+    defaultValue: UserRoles.USER,
+  })
+  role!: keyof typeof UserRoles;
+
+  //______________________________________________________________//
   // As Middlewares Before Save Any User Instance To The Table
   @BeforeSave
   static async hashPassword(instance: User) {

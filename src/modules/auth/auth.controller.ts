@@ -3,7 +3,7 @@ import asyncHandler from "express-async-handler";
 import {CREATED, OK} from "http-status";
 import APIError from "../../utils/ApiError";
 import {generateSendToken} from "../../utils/tokenHandler";
-import {User} from "../user/user.model";
+import User from "../user/user.model";
 import {LoginDto, RegisterDto} from "./auth.dto";
 
 // ---------------------------------

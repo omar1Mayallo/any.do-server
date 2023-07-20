@@ -1,6 +1,6 @@
 import {Response} from "express";
 import jwt from "jsonwebtoken";
-import {User} from "../modules/user/user.model";
+import User from "../modules/user/user.model";
 import env from "../config/env";
 
 //_SIGN_TOKEN_//
@@ -23,7 +23,6 @@ function generateSendToken(res: Response, user: User, statusCode: number) {
   user.password = undefined as any;
 
   res.status(statusCode).json({
-    status: "success",
     token,
     user,
   });

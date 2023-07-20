@@ -1,6 +1,6 @@
 import {IsEmail, IsNotEmpty, IsString, Length} from "class-validator";
 import {validateReqBody} from "../../middlewares/validation";
-import {IsMatchingPasswords} from "../../middlewares/validation/customValidators";
+import {IsMatchWith} from "../../middlewares/validation/custom/IsMatchWith";
 
 // LOGIN
 class LoginDto {
@@ -30,7 +30,7 @@ class RegisterDto {
   password!: string;
 
   @IsNotEmpty()
-  @IsMatchingPasswords("password")
+  @IsMatchWith("password", {message: "Passwords don't match"})
   confirmPassword!: string;
 }
 const registerValidation = validateReqBody(RegisterDto);

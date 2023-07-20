@@ -7,6 +7,7 @@ import env from "./config/env";
 import {routeNotFoundError} from "./middlewares/error/errors";
 import globalErrorMiddleware from "./middlewares/error";
 import authRouter from "./modules/auth/auth.router";
+import userRouter from "./modules/user/user.router";
 
 const app = express();
 
@@ -23,6 +24,7 @@ if (env.NODE_ENV === "development") app.use(morgan("dev"));
 //_________ ROUTES _________//
 // APP_ROUTES
 app.use("/api/auth", authRouter);
+app.use("/api/users", userRouter);
 
 // 404_ROUTES
 app.all("*", routeNotFoundError);

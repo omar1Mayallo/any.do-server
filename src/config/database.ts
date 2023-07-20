@@ -1,6 +1,6 @@
 import {Sequelize} from "sequelize-typescript";
 import env from "./env";
-import {User} from "../modules/user/user.model";
+import User from "../modules/user/user.model";
 
 const sequelize = new Sequelize({
   dialect: "postgres",
