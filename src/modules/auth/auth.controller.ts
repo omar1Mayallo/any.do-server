@@ -3,15 +3,15 @@ import asyncHandler from "express-async-handler";
 import {CREATED, OK} from "http-status";
 import APIError from "../../utils/ApiError";
 import {generateSendToken} from "../../utils/tokenHandler";
-// import {UserLoginDto, UserRegisterDto} from "./auth.dto";
 import {User} from "../user/user.model";
+import {LoginDto, RegisterDto} from "./auth.dto";
 
 // ---------------------------------
 // @desc    Register
 // @route   POST  /auth/register
 // @access  Public
 // ---------------------------------
-export const register: RequestHandler<unknown, unknown /*,UserRegisterDto*/> =
+export const register: RequestHandler<unknown, unknown, RegisterDto> =
   asyncHandler(async (req, res, next) => {
     const {username, email, password, confirmPassword} = req.body;
     //_A) CHECK _//
@@ -46,8 +46,8 @@ export const register: RequestHandler<unknown, unknown /*,UserRegisterDto*/> =
 // @route   POST  /auth/login
 // @access  Public
 // ---------------------------------
-export const login: RequestHandler<unknown, unknown /*,UserRegisterDto*/> =
-  asyncHandler(async (req, res, next) => {
+export const login: RequestHandler<unknown, unknown, LoginDto> = asyncHandler(
+  async (req, res, next) => {
     const {email, password} = req.body;
     //_A) CHECK_//
     // 1) If all data entered
@@ -62,4 +62,5 @@ export const login: RequestHandler<unknown, unknown /*,UserRegisterDto*/> =
 
     //_B) GENERATE_AND_SEND_TOKEN_TO_RESPONSE_//
     generateSendToken(res, user, OK);
-  });
+  }
+);

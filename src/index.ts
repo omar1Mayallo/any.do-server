@@ -11,7 +11,9 @@ import {connectToDB} from "./config/database";
 connectToDB();
 
 export const server = app.listen(env.PORT, () => {
-  console.log(`App Running on PORT:${env.PORT} in ${env.NODE_ENV} mode`);
+  console.log(
+    `App Running on http://localhost:${env.PORT}in ${env.NODE_ENV} mode`
+  );
 });
 
 //______UNHANDLED_REJECTIONS______//
