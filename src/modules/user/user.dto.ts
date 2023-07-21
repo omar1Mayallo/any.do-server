@@ -1,6 +1,13 @@
-import {IsNotEmpty, IsString, Length} from "class-validator";
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+  IsEmail,
+} from "class-validator";
 import {validateReqBody} from "../../middlewares/validation";
 import {IsMatchWith} from "../../middlewares/validation/custom/IsMatchWith";
+import {IsEmailNotExist} from "../../middlewares/validation/custom/IsEmailNotExist";
 
 // UPDATE Password
 class UpdateUserPasswordDto {
@@ -19,4 +26,22 @@ class UpdateUserPasswordDto {
 }
 const updateUserPasswordValidation = validateReqBody(UpdateUserPasswordDto);
 
-export {UpdateUserPasswordDto, updateUserPasswordValidation};
+// Update Email&Username
+class UpdateUserInfoDto {
+  @IsString()
+  @IsOptional()
+  username?: string;
+
+  @IsEmail()
+  @IsEmailNotExist()
+  @IsOptional()
+  email?: string;
+}
+const updateUserInfoValidation = validateReqBody(UpdateUserInfoDto);
+
+export {
+  UpdateUserPasswordDto,
+  updateUserPasswordValidation,
+  UpdateUserInfoDto,
+  updateUserInfoValidation,
+};

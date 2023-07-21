@@ -14,7 +14,6 @@ export function IsMatchWith(
       validator: {
         validate(value: any, args: any) {
           const [relatedPropertyName] = args.constraints;
-          console.log(args);
           const relatedValue = args.object[relatedPropertyName];
           return value === relatedValue;
         },

@@ -30,7 +30,7 @@ export default class User extends Model {
     type: DataType.STRING,
     allowNull: false,
     unique: true,
-    validate: {isEmail: true},
+    validate: {isEmail: {msg: "Must be a valid email address"}},
   })
   email!: string;
 

@@ -4,7 +4,7 @@ import {OK} from "http-status";
 import {AuthRequest} from "../../@types";
 import APIError from "../../utils/ApiError";
 import User from "./user.model";
-import {UpdateUserPasswordDto} from "./user.dto";
+import {UpdateUserInfoDto, UpdateUserPasswordDto} from "./user.dto";
 import {generateSendToken} from "../../utils/tokenHandler";
 
 // ---------------------------------
@@ -68,4 +68,31 @@ const updateUserPassword: RequestHandler<
   generateSendToken(res, user, OK);
 });
 
-export {getUserProfile, updateUserPassword};
+// ---------------------------------
+// @desc    UPDATE User Info
+// @route   PATCH  /users/profile
+// @access  Protected
+// ---------------------------------
+const updateUserInfo: RequestHandler<unknown, unknown, UpdateUserInfoDto> =
+  expressAsyncHandler(async (req, res, next) => {
+    const {username, email} = req.body;
+
+    // 1) Find The Logged In User
+    const user = await User.findByPk((req as AuthRequest).user.id);
+    if (!user) {
+      return next(APIError.notFound(`User not found`));
+    }
+
+    // 2) Update user info
+    if (email) {
+      user.email = email;
+    }
+    if (username) {
+      user.username = username;
+    }
+    const updatedUser = await user.save();
+
+    res.status(OK).json(updatedUser);
+  });
+
+export {getUserProfile, updateUserPassword, updateUserInfo};
