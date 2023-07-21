@@ -23,7 +23,9 @@ export const register: RequestHandler<unknown, unknown, RegisterDto> =
       return next(APIError.badRequest("Passwords do not match"));
     }
     // 2) If email is already exist
-    const user = await User.findOne({where: {email}});
+    const user = await User.findOne({
+      where: {email},
+    });
     if (user) {
       return next(
         APIError.badRequest("Email is already exist , please enter new email")
@@ -55,7 +57,10 @@ export const login: RequestHandler<unknown, unknown, LoginDto> = asyncHandler(
       return next(APIError.badRequest("Please fill all fields"));
     }
     // 2) If user exists and password is true
-    const user = await User.findOne({where: {email}});
+    const user = await User.findOne({
+      where: {email},
+      attributes: {include: ["password"]},
+    });
     if (!user || !(await user.isCorrectPassword(password))) {
       return next(APIError.badRequest("Invalid Credentials"));
     }

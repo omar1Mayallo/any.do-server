@@ -1,7 +1,17 @@
 import bcrypt from "bcrypt";
-import {BeforeSave, Column, DataType, Model, Table} from "sequelize-typescript";
+import {
+  BeforeSave,
+  Column,
+  DataType,
+  DefaultScope,
+  Model,
+  Table,
+} from "sequelize-typescript";
 import {UserRoles} from "../../constants";
 
+@DefaultScope(() => ({
+  attributes: {exclude: ["password"]}, // By default exclude the password attribute until i include it via {attributes: {include: ["password"]}}
+}))
 @Table({
   timestamps: true,
   tableName: "Users",
