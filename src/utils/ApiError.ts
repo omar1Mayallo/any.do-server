@@ -1,4 +1,10 @@
-import {NOT_FOUND, BAD_REQUEST, UNAUTHORIZED} from "http-status";
+import {
+  NOT_FOUND,
+  BAD_REQUEST,
+  UNAUTHORIZED,
+  CONFLICT,
+  FORBIDDEN,
+} from "http-status";
 
 export default class APIError extends Error {
   status: string;
@@ -20,5 +26,13 @@ export default class APIError extends Error {
 
   static unauthorized(message: string): APIError {
     return new APIError(message, UNAUTHORIZED);
+  }
+
+  static conflict(message: string): APIError {
+    return new APIError(message, CONFLICT);
+  }
+
+  static forbidden(message: string): APIError {
+    return new APIError(message, FORBIDDEN);
   }
 }

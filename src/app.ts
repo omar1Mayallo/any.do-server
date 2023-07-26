@@ -21,6 +21,7 @@ app.use(express.json());
 
 if (env.NODE_ENV === "development") app.use(morgan("dev"));
 
+
 //_________ ROUTES _________//
 // APP_ROUTES
 app.use("/api/auth", authRouter);

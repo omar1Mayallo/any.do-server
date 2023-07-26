@@ -15,6 +15,7 @@ import {UserRoles} from "../../constants";
 @Table({
   timestamps: true,
   tableName: "Users",
+  paranoid: true,
 })
 export default class User extends Model {
   @Column({
@@ -48,6 +49,12 @@ export default class User extends Model {
     defaultValue: UserRoles.USER,
   })
   role!: keyof typeof UserRoles;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: true,
+  })
+  active!: boolean;
 
   //______________________________________________________________//
   // As Middlewares Before Save Any User Instance To The Table
