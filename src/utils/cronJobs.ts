@@ -1,6 +1,6 @@
 import cron from "node-cron";
 import {Op} from "sequelize";
-import User from "../../modules/user/user.model";
+import User from "../modules/user/user.model";
 
 // Automatically Run Every Amount Of Time
 export default function setupCronJobs() {

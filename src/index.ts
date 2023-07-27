@@ -7,7 +7,7 @@ process.on("uncaughtException", uncaughtException);
 import app from "./app";
 import {connectToDB} from "./config/database";
 import env from "./config/env";
-import setupCronJobs from "./middlewares/cron-jobs";
+import setupCronJobs from "./utils/cronJobs";
 
 // _DATABASE_CONNECTION_ //
 connectToDB();
