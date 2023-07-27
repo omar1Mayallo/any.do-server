@@ -1,10 +1,41 @@
+import {Op} from "sequelize";
+
 export const filterQuery = (query: any) => {
   const queryObject = {...query};
   // EXCLUDE To Use Them For Filtering, Sorting, Limit_Fields, Pagination
   const excludesFields = ["sort", "page", "limit", "fields"];
   excludesFields.forEach((field) => delete queryObject[field]);
-  const queryString = JSON.stringify(queryObject);
-  const filterQuery = JSON.parse(queryString);
+
+  // Build the filter query
+  const filterQuery: any = {};
+  Object.keys(queryObject).forEach((key) => {
+    const value = queryObject[key];
+
+    // Check if the filter value uses a special operator("gt", "lt", "gte", "lte")
+    // For Example : if this endpoint >> {{URL}}/users?role=ADMIN&age_gt=18&age_lt=30
+    // I Need To reach to this {where: { role: 'ADMIN', age: { [Op.gt]: '18', [Op.lt]: '30' }}}
+    const operator = ["gt", "lt", "gte", "lte"].find((op) =>
+      key.includes(`_${op}`)
+    );
+    if (operator) {
+      const realKey = key.split(`_${operator}`)[0];
+      const opType =
+        operator === "gt"
+          ? Op.gt
+          : operator === "lt"
+          ? Op.lt
+          : operator === "gte"
+          ? Op.gte
+          : Op.lte;
+      filterQuery[realKey] = {
+        ...filterQuery[realKey],
+        [opType]: value,
+      };
+    } else {
+      filterQuery[key] = value;
+    }
+  });
+  // console.log(filterQuery);
 
   return filterQuery;
 };
