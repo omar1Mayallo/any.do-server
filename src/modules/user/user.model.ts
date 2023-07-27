@@ -56,14 +56,6 @@ export default class User extends Model {
   })
   active!: boolean;
 
-  @Column({
-    type: DataType.INTEGER,
-    validate: {
-      len: {msg: "Age between 7, 100 years old", args: [7, 100]},
-    },
-  })
-  age?: number;
-
   //______________________________________________________________//
   // As Middlewares Before Save Any User Instance To The Table
   @BeforeSave

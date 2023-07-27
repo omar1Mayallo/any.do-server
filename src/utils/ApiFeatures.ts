@@ -1,5 +1,13 @@
 import {Op} from "sequelize";
 
+export interface Pagination {
+  currentPage?: number;
+  numOfItemsPerPage?: number;
+  numOfPages?: number;
+  nextPage?: number;
+  previousPage?: number;
+}
+
 export const filterQuery = (query: any) => {
   const queryObject = {...query};
   // EXCLUDE To Use Them For Filtering, Sorting, Limit_Fields, Pagination
@@ -39,14 +47,6 @@ export const filterQuery = (query: any) => {
 
   return filterQuery;
 };
-
-export interface Pagination {
-  currentPage?: number;
-  numOfItemsPerPage?: number;
-  numOfPages?: number;
-  nextPage?: number;
-  previousPage?: number;
-}
 
 export default class APIFeatures {
   public paginationStatus!: Pagination;
