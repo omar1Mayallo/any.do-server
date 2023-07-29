@@ -1,6 +1,7 @@
 import {RequestHandler} from "express";
 import {server} from "../..";
 import APIError from "../../utils/ApiError";
+import {UNAUTHORIZED} from "http-status";
 
 // @ERROR_TYPE 404_ROUTES
 const routeNotFoundError: RequestHandler = (req, _, next) => {
@@ -23,4 +24,18 @@ function unhandledRejection(err: Error): void {
   });
 }
 
-export {routeNotFoundError, uncaughtException, unhandledRejection};
+// @ERROR_TYPE  INVALID_TOKEN_ERROR
+const handleJwtInvalidError = () =>
+  new APIError("Invalid token, please login again", UNAUTHORIZED);
+
+// @ERROR_TYPE EXPIRED_TOKEN_ERROR
+const handleJwtExpiredError = () =>
+  new APIError("Expired token, please login again", UNAUTHORIZED);
+
+export {
+  routeNotFoundError,
+  uncaughtException,
+  unhandledRejection,
+  handleJwtInvalidError,
+  handleJwtExpiredError,
+};
