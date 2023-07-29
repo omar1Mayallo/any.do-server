@@ -1,4 +1,4 @@
-import {RequestHandler} from "express";
+import {NextFunction, RequestHandler} from "express";
 import {server} from "../..";
 import APIError from "../../utils/ApiError";
 import {UNAUTHORIZED} from "http-status";
@@ -26,11 +26,11 @@ function unhandledRejection(err: Error): void {
 
 // @ERROR_TYPE  INVALID_TOKEN_ERROR
 const handleJwtInvalidError = () =>
-  new APIError("Invalid token, please login again", UNAUTHORIZED);
+  APIError.unauthorized(`Invalid token, please login again`);
 
 // @ERROR_TYPE EXPIRED_TOKEN_ERROR
 const handleJwtExpiredError = () =>
-  new APIError("Expired token, please login again", UNAUTHORIZED);
+  APIError.unauthorized(`Expired token, please login again`);
 
 export {
   routeNotFoundError,

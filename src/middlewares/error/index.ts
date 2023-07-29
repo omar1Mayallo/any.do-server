@@ -43,7 +43,8 @@ function globalErrorMiddleware(
     let error = {...err};
     if (error.name === "JsonWebTokenError") error = handleJwtInvalidError();
     if (error.name === "TokenExpiredError") error = handleJwtExpiredError();
-    errToProd(err, res);
+
+    errToProd(error, res);
   }
 }
 
