@@ -3,4 +3,9 @@ enum UserRoles {
   ADMIN = "ADMIN",
 }
 
-export {UserRoles};
+enum TaskStatus {
+  IN_PROGRESS = "IN_PROGRESS",
+  DONE = "DONE",
+}
+
+export {UserRoles, TaskStatus};

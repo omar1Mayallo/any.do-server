@@ -4,10 +4,12 @@ import {
   Column,
   DataType,
   DefaultScope,
+  HasMany,
   Model,
   Table,
 } from "sequelize-typescript";
 import {UserRoles} from "../../constants";
+import Task from "../task/task.model";
 
 @DefaultScope(() => ({
   attributes: {exclude: ["password"]}, // By default exclude the password attribute until i include it via {attributes: {include: ["password"]}}
@@ -55,6 +57,9 @@ export default class User extends Model {
     defaultValue: true,
   })
   active!: boolean;
+
+  @HasMany(() => Task)
+  tasks!: Task[];
 
   //______________________________________________________________//
   // As Middlewares Before Save Any User Instance To The Table

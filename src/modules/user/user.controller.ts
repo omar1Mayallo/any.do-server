@@ -38,7 +38,7 @@ const updateUserRole: RequestHandler<any, any, UpdateUserRoleDto> =
       return next(APIError.notFound(`No user with this id : ${id}`));
     }
 
-    // 1) Update User Role
+    // 2) Update User Role
     user.role = role;
     await user.save();
 
