@@ -1,7 +1,6 @@
-import {NextFunction, RequestHandler} from "express";
+import {RequestHandler} from "express";
 import {server} from "../..";
 import APIError from "../../utils/ApiError";
-import {UNAUTHORIZED} from "http-status";
 
 // @ERROR_TYPE 404_ROUTES
 const routeNotFoundError: RequestHandler = (req, _, next) => {
@@ -9,14 +8,14 @@ const routeNotFoundError: RequestHandler = (req, _, next) => {
 };
 
 // @ERROR_TYPE  UNHANDLED_EXCEPTIONS
-function uncaughtException(err: Error): void {
+function uncaughtException(err: APIError): void {
   console.log(err.name, err.message);
   console.log("UNCAUGHT_EXCEPTIONS! Server Shutting down...");
   process.exit(1);
 }
 
 // @ERROR_TYPE  UNHANDLED_REJECTION
-function unhandledRejection(err: Error): void {
+function unhandledRejection(err: APIError): void {
   console.error(err.name, err.message);
   server.close(() => {
     console.log("UNHANDLED_REJECTIONS! Server Shutting down...");
@@ -32,10 +31,23 @@ const handleJwtInvalidError = () =>
 const handleJwtExpiredError = () =>
   APIError.unauthorized(`Expired token, please login again`);
 
+// @ERROR_TYPE SEQUELIZE_UNIQUE_ERROR
+const handleDuplicationError = (err: APIError) => {
+  const errorMessage = (err as any).errors[0]?.message || `Duplication error`;
+  return APIError.badRequest(errorMessage);
+};
+// @ERROR_TYPE SEQUELIZE_VALIDATION_ERROR
+const handleValidationError = (err: APIError) => {
+  const errorMessage = (err as any).errors[0]?.message || `Validation error`;
+  return APIError.badRequest(errorMessage);
+};
+
 export {
+  handleDuplicationError,
+  handleJwtExpiredError,
+  handleJwtInvalidError,
   routeNotFoundError,
   uncaughtException,
   unhandledRejection,
-  handleJwtInvalidError,
-  handleJwtExpiredError,
+  handleValidationError,
 };

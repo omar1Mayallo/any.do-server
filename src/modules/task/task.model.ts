@@ -8,6 +8,8 @@ import {
 } from "sequelize-typescript";
 import {TaskStatus} from "../../constants";
 import User from "../user/user.model";
+import APIError from "../../utils/ApiError";
+import {BAD_REQUEST} from "http-status";
 
 @Table({
   timestamps: true,
@@ -18,9 +20,23 @@ export default class Task extends Model {
   @Column({
     type: DataType.STRING,
     allowNull: false,
-    unique: true,
+    // unique: true,
     validate: {
       len: {msg: "Title length between 5 and 50 characters", args: [5, 50]},
+      isUniqueForUser: async function (value: string) {
+        const task = await Task.findOne({
+          where: {
+            title: value,
+            userId: this.userId,
+          },
+        });
+        if (task) {
+          throw new APIError(
+            "Task title must be unique for each user",
+            BAD_REQUEST
+          );
+        }
+      },
     },
   })
   title!: string;
@@ -36,7 +52,7 @@ export default class Task extends Model {
   @Column({
     type: DataType.DATE,
   })
-  ReminderTime?: string;
+  reminderTime?: string;
 
   @Column({
     type: DataType.ENUM(...Object.values(TaskStatus)),

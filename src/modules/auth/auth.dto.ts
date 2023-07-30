@@ -29,6 +29,7 @@ class RegisterDto {
   username!: string;
 
   @IsEmail()
+  @IsEmailNotExist()
   @IsNotEmpty()
   email!: string;
 
