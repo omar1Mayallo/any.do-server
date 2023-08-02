@@ -2,10 +2,12 @@ import {RequestHandler} from "express";
 import expressAsyncHandler from "express-async-handler";
 import {CreateTaskDto} from "./task.dto";
 import {AuthRequest} from "../../@types";
-import {CREATED, OK} from "http-status";
+import {CREATED, NO_CONTENT, OK} from "http-status";
 import User from "../user/user.model";
 import APIError from "../../utils/ApiError";
 import Task from "./task.model";
+import {TaskStatus} from "../../constants";
+import {Op, WhereOptions} from "sequelize";
 
 // ---------------------------------
 // @desc    CREATE Task
@@ -34,7 +36,7 @@ const createTask: RequestHandler<any, any, CreateTaskDto> = expressAsyncHandler(
       userId, // Associate the task with the user using the userId field
     });
 
-    res.status(CREATED).json({message: "Task successfully created", task});
+    res.status(CREATED).json(task);
   }
 );
 
@@ -45,8 +47,6 @@ const createTask: RequestHandler<any, any, CreateTaskDto> = expressAsyncHandler(
 // ---------------------------------
 const getTasks: RequestHandler = expressAsyncHandler(async (req, res, next) => {
   const userId = (req as AuthRequest).user.id;
-
-  console.log(userId);
 
   // 1) CHECK User Exists
   const user = await User.findByPk(userId);
@@ -60,4 +60,112 @@ const getTasks: RequestHandler = expressAsyncHandler(async (req, res, next) => {
   res.status(OK).json(tasks);
 });
 
-export {createTask, getTasks};
+// ---------------------------------
+// @desc    UPDATE (Toggle) Task Status
+// @route   PATCH /tasks/:id/status
+// @access  Protected
+// ---------------------------------
+const toggleTaskStatus: RequestHandler = expressAsyncHandler(
+  async (req, res, next) => {
+    const taskId = req.params.id;
+    const userId = (req as AuthRequest).user.id;
+
+    // 1) Find the Task
+    const task = await Task.findOne({where: {id: taskId, userId}});
+    if (!task) {
+      return next(APIError.notFound("Task not found"));
+    }
+
+    // 2) Toggle the task status (IN_PROGRESS or DONE)
+    task.status =
+      task.status === TaskStatus.IN_PROGRESS
+        ? TaskStatus.DONE
+        : TaskStatus.IN_PROGRESS;
+
+    await task.save();
+
+    res.status(OK).json(task);
+  }
+);
+
+// ---------------------------------
+// @desc    Delete Task (Soft Delete)
+// @route   DELETE /tasks/:id
+// @access  Protected
+// ---------------------------------
+const archivedTask: RequestHandler = expressAsyncHandler(
+  async (req, res, next) => {
+    const taskId = req.params.id;
+    const userId = (req as AuthRequest).user.id;
+
+    // 1) Find the Task
+    const task = await Task.findOne({where: {id: taskId, userId}});
+    if (!task) {
+      return next(APIError.notFound("Task not found"));
+    }
+
+    // 2) Soft delete the task (I built in frontend Archive that contains all soft deleted tasks)
+    await task.destroy();
+
+    res.status(NO_CONTENT).json(task);
+  }
+);
+
+// ---------------------------------
+// @desc    GET Archived Tasks
+// @route   GET /tasks/archived
+// @access  Protected
+// ---------------------------------
+// Function to group tasks by day of deletedAt
+function groupTasksByDay(tasks: Task[]) {
+  const groupedTasks: any = {};
+  for (const task of tasks) {
+    const deletedDate = task.deletedAt.toISOString().split("T")[0]; // Get the date part (YYYY-MM-DD)
+    if (!groupedTasks[deletedDate]) {
+      groupedTasks[deletedDate] = [];
+    }
+    groupedTasks[deletedDate].push(task);
+  }
+  return groupedTasks;
+}
+const getArchivedTasks: RequestHandler = expressAsyncHandler(
+  async (req, res, next) => {
+    const userId = (req as AuthRequest).user.id;
+    const searchQuery = req.query.search;
+
+    // 1) Build A WhereFilterObject
+    // default filterObject
+    const filterObject: WhereOptions = {
+      deletedAt: {[Op.ne]: null},
+      userId,
+    };
+    // filterObject With searchQuery
+    if (searchQuery) {
+      filterObject["title"] = {
+        [Op.iLike]: `%${searchQuery}%`, // iLike >> Case-insensitive string match (only available in PostgreSQL)
+      };
+    }
+
+    // 2) Find all soft-deleted tasks for the logged-in user
+    const archivedTasks = await Task.findAll({
+      where: filterObject,
+      attributes: ["id", "title", "deletedAt" /*, "list"*/],
+      order: [["deletedAt", "DESC"]],
+
+      paranoid: false,
+    });
+
+    // 3) ReFormat Response - Group the archivedTasks by the day of deletion (deletedAt)
+    const groupedArchivedTasks = groupTasksByDay(archivedTasks);
+    const formattedArchivedTasks = Object.keys(groupedArchivedTasks).map(
+      (day) => ({
+        day,
+        archivedTasks: groupedArchivedTasks[day],
+      })
+    );
+
+    res.status(OK).json(formattedArchivedTasks);
+  }
+);
+
+export {createTask, getTasks, toggleTaskStatus, archivedTask, getArchivedTasks};
