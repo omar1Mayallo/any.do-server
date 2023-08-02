@@ -168,4 +168,72 @@ const getArchivedTasks: RequestHandler = expressAsyncHandler(
   }
 );
 
-export {createTask, getTasks, toggleTaskStatus, archivedTask, getArchivedTasks};
+// ---------------------------------
+// @desc    DELETE All Archived Tasks
+// @route   DELETE /tasks/archived
+// @access  Protected
+// ---------------------------------
+const deleteAllArchivedTasks: RequestHandler = expressAsyncHandler(
+  async (req, res) => {
+    const userId = (req as AuthRequest).user.id;
+
+    // Find all soft-deleted tasks for the logged-in user that are archived
+    const archivedTasks = await Task.findAll({
+      where: {
+        deletedAt: {[Op.ne]: null},
+        userId,
+      },
+      paranoid: false, // Include soft-deleted tasks in the result
+    });
+
+    // Permanently delete the archived tasks from the database
+    for (const task of archivedTasks) {
+      await task.destroy({force: true});
+    }
+
+    res
+      .status(NO_CONTENT)
+      .json({message: "Archived tasks deleted successfully."});
+  }
+);
+
+// ---------------------------------
+// @desc    UPDATE Archived Tasks To Regular Task (deleteAt turn into null)
+// @route   PATCH /tasks/archived/:id
+// @access  Protected
+// ---------------------------------
+const updateArchivedTaskToRegular: RequestHandler = expressAsyncHandler(
+  async (req, res, next) => {
+    const userId = (req as AuthRequest).user.id;
+    const taskId = req.params.id;
+
+    // 1) Find the Archived Task(deleteAt NOT NULL)
+    const archivedTask = await Task.findOne({
+      where: {
+        id: taskId,
+        userId,
+        deletedAt: {[Op.ne]: null},
+      },
+      paranoid: false, // Include soft-deleted tasks in the result
+    });
+
+    if (!archivedTask) {
+      return next(APIError.notFound("This Task Not Found In Your Archive"));
+    }
+
+    // The restore method allows you to undo the soft delete and bring back the record by setting the deletedAt field to null
+    const task = await archivedTask.restore();
+
+    res.status(OK).json(task);
+  }
+);
+
+export {
+  createTask,
+  getTasks,
+  toggleTaskStatus,
+  archivedTask,
+  getArchivedTasks,
+  deleteAllArchivedTasks,
+  updateArchivedTaskToRegular,
+};

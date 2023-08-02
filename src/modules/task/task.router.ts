@@ -7,6 +7,8 @@ import {
   getTasks,
   toggleTaskStatus,
   getArchivedTasks,
+  deleteAllArchivedTasks,
+  updateArchivedTaskToRegular,
 } from "./task.controller";
 
 const taskRouter = express.Router();
@@ -15,7 +17,12 @@ taskRouter.use(isAuth);
 
 taskRouter.route("/").get(getTasks).post(createTaskValidation, createTask);
 
-taskRouter.route("/archived").get(getArchivedTasks);
+taskRouter
+  .route("/archived")
+  .get(getArchivedTasks)
+  .delete(deleteAllArchivedTasks);
+
+taskRouter.route("/archived/:id").patch(updateArchivedTaskToRegular);
 
 taskRouter.route("/:id/status").patch(toggleTaskStatus);
 
