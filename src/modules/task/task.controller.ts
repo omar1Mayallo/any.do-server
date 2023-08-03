@@ -9,6 +9,7 @@ import Task from "./task.model";
 import {TaskStatus} from "../../constants";
 import {Op, WhereOptions} from "sequelize";
 import Tag from "../tag/tag.model";
+import SubTask from "../subtask/subtask.model";
 
 // ---------------------------------
 // @desc    CREATE Task
@@ -63,6 +64,11 @@ const getTasks: RequestHandler = expressAsyncHandler(async (req, res, next) => {
         model: Tag,
         required: false, // Include the Tag model only if it exists (not null)
         attributes: ["name", "color"],
+      },
+      {
+        model: SubTask,
+        required: false, // Include the SubTask model only if it exists (not null)
+        attributes: ["title", "status"],
       },
     ],
   });
@@ -301,6 +307,30 @@ const updateTaskTag: RequestHandler = expressAsyncHandler(
   }
 );
 
+// ---------------------------------
+// @desc    CREATE SubTask For Specific Task
+// @route   POST /tasks/:id/subtasks
+// @access  Protected
+// ---------------------------------
+const createSubTaskForTask: RequestHandler = expressAsyncHandler(
+  async (req, res, next) => {
+    const {id} = req.params;
+    const {title} = req.body;
+
+    const task = await Task.findByPk(id);
+    if (!task) {
+      return next(APIError.notFound(`No Task Match With This ID: ${id}`));
+    }
+
+    const subTask = await SubTask.create({
+      title,
+      taskId: task.id, // Set the taskId to the id of the parent task
+    });
+
+    res.status(OK).json(subTask);
+  }
+);
+
 export {
   createTask,
   getTasks,
@@ -311,4 +341,5 @@ export {
   updateArchivedTaskToRegular,
   updateTaskNotes,
   updateTaskTag,
+  createSubTaskForTask,
 };

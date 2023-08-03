@@ -3,6 +3,7 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasMany,
   Model,
   Table,
 } from "sequelize-typescript";
@@ -12,6 +13,7 @@ import APIError from "../../utils/ApiError";
 import {BAD_REQUEST} from "http-status";
 import Tag from "../tag/tag.model";
 import List from "../list/list.model";
+import SubTask from "../subtask/subtask.model";
 
 @Table({
   timestamps: true,
@@ -86,6 +88,11 @@ export default class Task extends Model {
 
   @BelongsTo(() => Tag)
   tag?: Tag;
+
+  //__________SUBTASK_RELATION__________//
+
+  @HasMany(() => SubTask) // Define the association with Task
+  subtasks?: SubTask[];
 
   //__________LIST_RELATION__________//
 
