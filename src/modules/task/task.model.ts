@@ -82,7 +82,7 @@ export default class Task extends Model {
     allowNull: true,
     defaultValue: null,
   })
-  tagId?: number;
+  tagId?: number | null;
 
   @BelongsTo(() => Tag)
   tag?: Tag;

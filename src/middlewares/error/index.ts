@@ -45,7 +45,7 @@ function globalErrorMiddleware(
   if (env.NODE_ENV === "development") {
     errToDev(err, res);
   } else {
-    let error = {...err};
+    let error = {...err, name: err.name, message: err.message};
     if (error.name === "JsonWebTokenError") error = handleJwtInvalidError();
     if (error.name === "TokenExpiredError") error = handleJwtExpiredError();
     if (error.name === "SequelizeUniqueConstraintError")

@@ -267,6 +267,40 @@ const updateTaskNotes: RequestHandler<any, any, UpdateTaskNotesDto> =
     res.status(OK).json(updatedTask);
   });
 
+// ---------------------------------
+// @desc    UPDATE Task Tag
+// @route   PATCH /tasks/:id/tag
+// @access  Protected
+// ---------------------------------
+const updateTaskTag: RequestHandler = expressAsyncHandler(
+  async (req, res, next) => {
+    const {id} = req.params;
+    const {tagId} = req.body;
+
+    const task = await Task.findByPk(id);
+    if (!task) {
+      return next(APIError.notFound(`No Task Match With This ID: ${id}`));
+    }
+
+    if (tagId === null || tagId === undefined) {
+      // If tagId is null, set the tagId of the task to null and save it
+      task.tagId = null;
+    } else {
+      // If tagId is not null, check if the tag with the given id exists
+      const tag = await Tag.findByPk(tagId);
+      if (!tag) {
+        return next(APIError.notFound(`No Tag Match With This ID: ${tagId}`));
+      }
+      // Set the tagId of the task to the new tagId
+      task.tagId = tagId;
+    }
+
+    const updatedTask = await task.save();
+
+    res.status(OK).json(updatedTask);
+  }
+);
+
 export {
   createTask,
   getTasks,
@@ -276,4 +310,5 @@ export {
   deleteAllArchivedTasks,
   updateArchivedTaskToRegular,
   updateTaskNotes,
+  updateTaskTag,
 };
