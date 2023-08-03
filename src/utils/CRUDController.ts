@@ -1,11 +1,11 @@
 import expressAsyncHandler from "express-async-handler";
 import APIFeatures from "./ApiFeatures";
 import {RequestHandler} from "express";
-import {NO_CONTENT, OK} from "http-status";
+import {CREATED, NO_CONTENT, OK} from "http-status";
 import {DestroyOptions} from "sequelize";
 import APIError from "./ApiError";
 
-export default class CRUDController {
+export default class CRUDController<UpdateDtoT, CreateDtoT> {
   constructor(private Model: any) {}
 
   // GET_ALL
@@ -38,8 +38,37 @@ export default class CRUDController {
   });
 
   // GET_ONE
+  getOne: RequestHandler = expressAsyncHandler(async (req, res, next) => {
+    const {id} = req.params;
+
+    const doc = await this.Model.findOne({where: {id}, paranoid: false});
+    if (!doc) {
+      return next(APIError.notFound(`No doc with this id : ${id}`));
+    }
+
+    res.status(OK).json(doc);
+  });
 
   // UPDATE_ONE
+  updateOne: RequestHandler<any, any, UpdateDtoT> = expressAsyncHandler(
+    async (req, res, next) => {
+      const {id} = req.params;
+
+      // 1) Check if the doc exists
+      const doc = await this.Model.findOne({where: {id}, paranoid: false});
+      if (!doc) {
+        return next(APIError.notFound(`No doc with this id: ${id}`));
+      }
+
+      // 2) Update the doc
+      const updatedDoc = await doc.update(req.body, {
+        where: {id},
+        paranoid: false,
+      });
+
+      res.status(OK).json(updatedDoc);
+    }
+  );
 
   // DELETE_ONE(Force or Soft)
   deleteOne: RequestHandler = expressAsyncHandler(async (req, res, next) => {
@@ -63,5 +92,12 @@ export default class CRUDController {
     res.status(NO_CONTENT).json({status: "success"});
   });
 
-  // DELETE_ALL
+  // CREATE_ONE
+  createOne: RequestHandler<any, any, CreateDtoT> = expressAsyncHandler(
+    async (req, res, next) => {
+      const doc = await this.Model.create(req.body);
+
+      res.status(CREATED).json(doc);
+    }
+  );
 }

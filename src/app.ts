@@ -9,6 +9,7 @@ import globalErrorMiddleware from "./middlewares/error";
 import authRouter from "./modules/auth/auth.router";
 import userRouter from "./modules/user/user.router";
 import taskRouter from "./modules/task/task.router";
+import tagRouter from "./modules/tag/tag.router";
 
 const app = express();
 
@@ -27,6 +28,7 @@ if (env.NODE_ENV === "development") app.use(morgan("dev"));
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/tasks", taskRouter);
+app.use("/api/tags", tagRouter);
 
 // 404_ROUTES
 app.all("*", routeNotFoundError);

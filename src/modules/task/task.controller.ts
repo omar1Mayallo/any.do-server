@@ -1,6 +1,6 @@
 import {RequestHandler} from "express";
 import expressAsyncHandler from "express-async-handler";
-import {CreateTaskDto} from "./task.dto";
+import {CreateTaskDto, UpdateTaskNotesDto} from "./task.dto";
 import {AuthRequest} from "../../@types";
 import {CREATED, NO_CONTENT, OK} from "http-status";
 import User from "../user/user.model";
@@ -8,6 +8,7 @@ import APIError from "../../utils/ApiError";
 import Task from "./task.model";
 import {TaskStatus} from "../../constants";
 import {Op, WhereOptions} from "sequelize";
+import Tag from "../tag/tag.model";
 
 // ---------------------------------
 // @desc    CREATE Task
@@ -55,7 +56,16 @@ const getTasks: RequestHandler = expressAsyncHandler(async (req, res, next) => {
   }
 
   // 2) GET User Tasks
-  const tasks = await Task.findAll({where: {userId}});
+  const tasks = await Task.findAll({
+    where: {userId},
+    include: [
+      {
+        model: Tag,
+        required: false, // Include the Tag model only if it exists (not null)
+        attributes: ["name", "color"],
+      },
+    ],
+  });
 
   res.status(OK).json(tasks);
 });
@@ -169,7 +179,7 @@ const getArchivedTasks: RequestHandler = expressAsyncHandler(
 );
 
 // ---------------------------------
-// @desc    DELETE All Archived Tasks
+// @desc    DELETE(force) All Archived Tasks
 // @route   DELETE /tasks/archived
 // @access  Protected
 // ---------------------------------
@@ -228,6 +238,35 @@ const updateArchivedTaskToRegular: RequestHandler = expressAsyncHandler(
   }
 );
 
+// ---------------------------------
+// @desc    Update Task Notes
+// @route   PATCH /tasks/:id/notes
+// @access  Protected
+// ---------------------------------
+const updateTaskNotes: RequestHandler<any, any, UpdateTaskNotesDto> =
+  expressAsyncHandler(async (req, res, next) => {
+    const userId = (req as AuthRequest).user.id;
+    const taskId = req.params.id;
+    const {notes} = req.body;
+
+    // 1) Find the Task
+    const task = await Task.findOne({
+      where: {
+        id: taskId,
+        userId,
+      },
+    });
+
+    if (!task) {
+      return next(APIError.notFound("Task Not Found"));
+    }
+
+    task.notes = notes;
+    const updatedTask = await task.save();
+
+    res.status(OK).json(updatedTask);
+  });
+
 export {
   createTask,
   getTasks,
@@ -236,4 +275,5 @@ export {
   getArchivedTasks,
   deleteAllArchivedTasks,
   updateArchivedTaskToRegular,
+  updateTaskNotes,
 };

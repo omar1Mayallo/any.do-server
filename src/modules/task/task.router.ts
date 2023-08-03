@@ -9,6 +9,7 @@ import {
   getArchivedTasks,
   deleteAllArchivedTasks,
   updateArchivedTaskToRegular,
+  updateTaskNotes,
 } from "./task.controller";
 
 const taskRouter = express.Router();
@@ -25,6 +26,7 @@ taskRouter
 taskRouter.route("/archived/:id").patch(updateArchivedTaskToRegular);
 
 taskRouter.route("/:id/status").patch(toggleTaskStatus);
+taskRouter.route("/:id/notes").patch(updateTaskNotes);
 
 taskRouter.route("/:id").delete(archivedTask);
 

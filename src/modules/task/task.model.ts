@@ -10,6 +10,8 @@ import {TaskStatus} from "../../constants";
 import User from "../user/user.model";
 import APIError from "../../utils/ApiError";
 import {BAD_REQUEST} from "http-status";
+import Tag from "../tag/tag.model";
+import List from "../list/list.model";
 
 @Table({
   timestamps: true,
@@ -20,7 +22,6 @@ export default class Task extends Model {
   @Column({
     type: DataType.STRING,
     allowNull: false,
-    // unique: true,
     validate: {
       len: {msg: "Title length between 5 and 50 characters", args: [5, 50]},
       isUniqueForUser: async function (value: string) {
@@ -60,6 +61,8 @@ export default class Task extends Model {
   })
   status!: keyof typeof TaskStatus;
 
+  //__________USER_RELATION__________//
+
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,
@@ -70,4 +73,29 @@ export default class Task extends Model {
     onDelete: "CASCADE",
   })
   user!: User;
+
+  //__________TAG_RELATION__________//
+
+  @ForeignKey(() => Tag) // Define the foreign key in the Tasks table referencing the Tag table
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+    defaultValue: null,
+  })
+  tagId?: number;
+
+  @BelongsTo(() => Tag)
+  tag?: Tag;
+
+  //__________LIST_RELATION__________//
+
+  @ForeignKey(() => List) // Define the foreign key in the Tasks table referencing the List table
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true, // Allow null to make the association optional
+  })
+  listId?: number;
+
+  @BelongsTo(() => List)
+  list?: List; // Use "list?" to make the association optional
 }
